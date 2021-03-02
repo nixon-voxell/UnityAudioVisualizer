@@ -1,0 +1,17 @@
+{
+  "name": "smartassistant.voxell.audiovisualizer",
+  "displayName": "SA Audio Visualizer",
+  "author": "Nixon",
+  "description": "Audio Visualizer using VFX graph for Smart Assistant.",
+  "keywords": [
+    "audio",
+    "visualizer"
+  ],
+  "license": "GPL v3.0",
+  "unity": "2020.2",
+  "unityRelease": "0f1",
+  "version": "0.1.0",
+  "dependencies": {
+    "com.unity.visualeffectgraph": "10.3.2"
+  }
+}
