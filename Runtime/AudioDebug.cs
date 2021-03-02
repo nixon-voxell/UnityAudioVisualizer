@@ -23,14 +23,13 @@ using UnityEngine;
 
 namespace SmartAssistant.AudioVisualizer
 {
-  public class Debug : MonoBehaviour
+  public class AudioDebug : MonoBehaviour
   {
     public AudioSource audioSource;
     public AudioProfile audioProfile;
     public Visualizer visualizer;
     public SpectrumSmoother spectrumSmoother;
 
-    public int smoothingIterations = 10;
     public float width;
     public float xOffset;
 
@@ -40,7 +39,7 @@ namespace SmartAssistant.AudioVisualizer
     void Awake()
     {
       visualizer = new Visualizer(ref audioSource, ref audioProfile);
-      spectrumSmoother = new SpectrumSmoother(ref visualizer.freqSize, ref smoothingIterations);
+      spectrumSmoother = new SpectrumSmoother(ref visualizer.freqSize, ref audioProfile.smoothingIterations);
       bandSize = audioProfile.bandSize;
     }
 

@@ -10,7 +10,7 @@
   "license": "GPL v3.0",
   "unity": "2020.2",
   "unityRelease": "0f1",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
     "com.unity.visualeffectgraph": "10.3.2"
   }
