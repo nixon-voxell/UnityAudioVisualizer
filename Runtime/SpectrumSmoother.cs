@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace SmartAssistant.AudioVisualizer
+namespace SmartAssistant.Audio.Visualizer
 {
   public class SpectrumSmoother
   {

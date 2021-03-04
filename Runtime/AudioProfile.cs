@@ -19,7 +19,7 @@ All rights reserved.
 
 using UnityEngine;
 
-namespace SmartAssistant.AudioVisualizer
+namespace SmartAssistant.Audio
 {
   [System.Serializable]
   public class AudioProfile

@@ -17,11 +17,9 @@ The Original Code is Copyright (C) 2020 Voxell Technologies.
 All rights reserved.
 */
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace SmartAssistant.AudioVisualizer
+namespace SmartAssistant.Audio.Visualizer
 {
   public class AudioDebug : MonoBehaviour
   {
@@ -70,7 +68,6 @@ namespace SmartAssistant.AudioVisualizer
         for (int s=0; s < visualizer.band.Length; s++)
           Gizmos.DrawCube(transform.position + new Vector3(width*s + xOffset, 0, 0), new Vector3(width, visualizer.freq[s], width));
       }
-      
     }
   }
 }

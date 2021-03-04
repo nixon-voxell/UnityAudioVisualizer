@@ -1,11 +1,12 @@
 {
-  "name": "smartassistant.voxell.audiovisualizer",
-  "displayName": "SA Audio Visualizer",
+  "name": "smartassistant.voxell.audio",
+  "displayName": "SA Audio",
   "author": "Nixon",
   "description": "Audio Visualizer using VFX graph for Smart Assistant.",
   "keywords": [
     "audio",
-    "visualizer"
+    "visualizer",
+    "smart assistant"
   ],
   "license": "GPL v3.0",
   "unity": "2020.2",
