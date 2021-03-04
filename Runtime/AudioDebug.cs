@@ -19,7 +19,7 @@ All rights reserved.
 
 using UnityEngine;
 
-namespace SmartAssistant.Audio.Visualizer
+namespace SmartAssistant.Audio
 {
   public class AudioDebug : MonoBehaviour
   {
