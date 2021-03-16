@@ -21,11 +21,11 @@ using UnityEngine;
 
 namespace SmartAssistant.Audio
 {
-  public class Visualizer
+  public class AudioProcessor
   {
     public AudioSource source;
     public AudioProfile profile;
-    public Visualizer(ref AudioSource source, ref AudioProfile profile)
+    public AudioProcessor(ref AudioSource source, ref AudioProfile profile)
     {
       this.source = source;
       this.profile = profile;

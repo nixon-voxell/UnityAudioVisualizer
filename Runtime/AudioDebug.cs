@@ -19,13 +19,13 @@ All rights reserved.
 
 using UnityEngine;
 
-namespace SmartAssistant.Audio
+namespace SmartAssistant.Audio.Debug
 {
   public class AudioDebug : MonoBehaviour
   {
     public AudioSource audioSource;
     public AudioProfile audioProfile;
-    public Visualizer visualizer;
+    public AudioProcessor audioProcessor;
     public SpectrumSmoother spectrumSmoother;
 
     public float width;
@@ -36,8 +36,8 @@ namespace SmartAssistant.Audio
 
     void Awake()
     {
-      visualizer = new Visualizer(ref audioSource, ref audioProfile);
-      spectrumSmoother = new SpectrumSmoother(ref visualizer.freqSize, ref audioProfile.smoothingIterations);
+      audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
+      spectrumSmoother = new SpectrumSmoother(ref audioProcessor.freqSize, ref audioProfile.smoothingIterations);
       bandSize = audioProfile.bandSize;
     }
 
@@ -46,17 +46,17 @@ namespace SmartAssistant.Audio
     {
       if (audioProfile.freqRange != freqRange)
       {
-        visualizer.Init();
+        audioProcessor.Init();
         freqRange = audioProfile.freqRange;
       }
       if (audioProfile.bandSize != bandSize)
       {
-        visualizer.Init();
+        audioProcessor.Init();
         bandSize = audioProfile.bandSize;
       }
 
-      visualizer.SampleSpectrum();
-      visualizer.RescaleSamples(Time.deltaTime);
+      audioProcessor.SampleSpectrum();
+      audioProcessor.RescaleSamples(Time.deltaTime);
     }
 
     void OnDrawGizmos()
@@ -65,8 +65,10 @@ namespace SmartAssistant.Audio
       {
         Gizmos.color = Color.cyan;
         Gizmos.color *= new Color(1, 1, 1, 0.5f);
-        for (int s=0; s < visualizer.band.Length; s++)
-          Gizmos.DrawCube(transform.position + new Vector3(width*s + xOffset, 0, 0), new Vector3(width, visualizer.freq[s], width));
+        for (int s=0; s < audioProcessor.band.Length; s++)
+          Gizmos.DrawCube(
+            transform.position + new Vector3(width*s + xOffset, 0, 0),
+            new Vector3(width, audioProcessor.freq[s], width));
       }
     }
   }
