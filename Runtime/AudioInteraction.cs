@@ -19,9 +19,9 @@ All rights reserved.
 
 using UnityEngine;
 
-namespace SmartAssistant.Audio.Visualizer
+namespace SmartAssistant.Audio
 {
-  public partial class AudioVisualizer
+  public partial class AudioCore
   {
     #region Agent Interaction
     [Header("Agent Interaction")]
@@ -69,10 +69,10 @@ namespace SmartAssistant.Audio.Visualizer
         transform.Rotate(Camera.main.transform.right, Vector3.Dot(rotationVelocity, Camera.main.transform.up), Space.World);
         rotationVelocity *= velocityDamping;
 
-        if (rotationVelocity.magnitude <= epsilon) rotationVelocity = Vector2.zero;
+        if (rotationVelocity.magnitude <= EPSILON) rotationVelocity = Vector2.zero;
 
         float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, 0, 1);
-        audioVFX.SetFloat(noiseIntensity, intensity);
+        // audioVFX.SetFloat(noiseIntensity, intensity);
         #endregion
       }
     }

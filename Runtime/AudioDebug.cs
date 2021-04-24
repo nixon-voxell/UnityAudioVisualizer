@@ -19,7 +19,7 @@ All rights reserved.
 
 using UnityEngine;
 
-namespace SmartAssistant.Audio.Debug
+namespace SmartAssistant.Audio.AudioDebug
 {
   public class AudioDebug : MonoBehaviour
   {
@@ -30,33 +30,34 @@ namespace SmartAssistant.Audio.Debug
 
     public float width;
     public float xOffset;
+    public int bandSize;
 
-    int freqRange;
-    int bandSize;
+    private int freqRange;
 
     void Awake()
     {
+      audioProfile.bandSize = bandSize;
       audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
       spectrumSmoother = new SpectrumSmoother(ref audioProcessor.freqSize, ref audioProfile.smoothingIterations);
-      bandSize = audioProfile.bandSize;
+
+      freqRange = audioProfile.freqRange;
     }
 
-    // Update is called once per frame
     void Update()
     {
       if (audioProfile.freqRange != freqRange)
       {
         audioProcessor.Init();
         freqRange = audioProfile.freqRange;
-      }
-      if (audioProfile.bandSize != bandSize)
+      } else if (audioProfile.bandSize != bandSize)
       {
         audioProcessor.Init();
         bandSize = audioProfile.bandSize;
       }
 
       audioProcessor.SampleSpectrum();
-      audioProcessor.RescaleSamples(Time.deltaTime);
+      audioProcessor.RescaleSamples();
+      audioProcessor.GenerateBands();
     }
 
     void OnDrawGizmos()
@@ -68,7 +69,7 @@ namespace SmartAssistant.Audio.Debug
         for (int s=0; s < audioProcessor.band.Length; s++)
           Gizmos.DrawCube(
             transform.position + new Vector3(width*s + xOffset, 0, 0),
-            new Vector3(width, audioProcessor.freq[s], width));
+            new Vector3(width, audioProcessor.band[s], width));
       }
     }
   }

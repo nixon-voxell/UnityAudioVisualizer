@@ -55,20 +55,17 @@ namespace SmartAssistant.Audio
       for (int s=0; s < profile.sampleSize; s++)
       {
         currFreq += freqInterval;
-        if (currFreq < profile.freqRange)
-          freqSize ++;
+        if (currFreq < profile.freqRange) freqSize ++;
         else break;
       }
       freq = new float[freqSize];
 
-      bandAverage = Mathf.FloorToInt(freqSize/profile.bufferSize); 
+      bandAverage = freqSize/profile.bandSize;
 
       band = new float[profile.bandSize];
       bandDistribution = new int[profile.bandSize];
-      for (int b=0; b < profile.bandSize - 1; b++)
+      for (int b=0; b < profile.bandSize; b++)
         bandDistribution[b] = bandAverage + b*bandAverage;
-      
-      bandDistribution[profile.bandSize - 1] = freqSize;
 
       for (int s=0; s < profile.sampleSize; s++)
         sampleBuffers[s] = new float[profile.bufferSize];
@@ -76,11 +73,10 @@ namespace SmartAssistant.Audio
 
     public void SampleSpectrum() => source.GetSpectrumData(samples, profile.channel, profile.window);
 
-    public void RescaleSamples(float deltaTime)
+    public void RescaleSamples()
     {
       for (int f=1; f < freqSize; f++)
       {
-        // samples[f] = Mathf.Sqrt(Mathf.Pow(samples[f], profile.power)) * profile.scale;
         samples[f] = Mathf.Pow(Mathf.Sqrt(samples[f]), profile.power) * profile.scale;
 
         // populate buffers

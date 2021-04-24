@@ -34,7 +34,7 @@ namespace SmartAssistant.Audio
     public int smoothingIterations;
     [Range(5000, 20000)]
     public int freqRange;
-    [Range(10, 1000)]
+    [HideInInspector]
     public int bandSize;
   }
 }

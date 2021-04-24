@@ -19,63 +19,54 @@ All rights reserved.
 
 using UnityEngine;
 using UnityEngine.VFX;
+using Unity.Collections;
 
-namespace SmartAssistant.Audio.Visualizer
+namespace SmartAssistant.Audio
 {
-  [RequireComponent(typeof(VisualEffect))]
-  [RequireComponent(typeof(AudioSource))]
-  public partial class AudioVisualizer : MonoBehaviour
+  public partial class AudioCore
   {
-    public VisualEffect audioVFX;
     public AudioSource audioSource;
-    private const float epsilon = 0.001f;
-    
-    #region VFX Property IDs
-    private int noisePositionAddition,
-    radius,
-    // audio1,
-    // audio2,
-    // audio3,
-    // audio4,
-    // audio5,
-    // audio6,
-    // audio7,
-    // audio8,
-    noiseIntensity;
-    #endregion
+    public AudioProfile audioProfile;
+    public AudioProcessor audioProcessor;
 
-    #region Editor Stuff
-    [HideInInspector]
-    public bool drawDefaultInspect;
-    #endregion
+    public VisualEffect audioVFX;
+    public MeshFilter meshFilter;
+    public Mesh sampleMesh;
+    public float audioEffectIntensity = 5.0f;
 
-    void Start()
+    private Mesh modifiedSampleMesh;
+    private Vector3[] vertices;
+    private Vector3[] velocites;
+
+    void InitAudioVisualizer()
     {
-      InitVFXPropertyIDs();
+      audioProfile.bandSize = sampleMesh.vertexCount;
+      audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
 
-      InitAgentInteraction();
-      // InitAudioVisualizer();
+      vertices = sampleMesh.vertices;
+      velocites = new Vector3[sampleMesh.vertexCount];
+      MathUtils.SetArray<Vector3>(ref velocites, Vector3.zero);
+
+      MeshUtils.CopyMesh(in sampleMesh, out modifiedSampleMesh);
+      audioVFX.SetMesh(VFXPropertyId.mesh_sampleMesh, modifiedSampleMesh);
+      modifiedSampleMesh.MarkDynamic();
+      meshFilter.mesh = modifiedSampleMesh;
     }
 
-    void Update()
+    void UpdateAudioVisualizer()
     {
-      UpdateAgentInteraction();
-      // UpdateAudioVisualizer();
-    }
+      audioProcessor.SampleSpectrum();
+      audioProcessor.RescaleSamples();
+      audioProcessor.GenerateBands();
 
-    void InitVFXPropertyIDs()
-    {
-      // audio1 = Shader.PropertyToID("Audio1");
-      // audio2 = Shader.PropertyToID("Audio2");
-      // audio3 = Shader.PropertyToID("Audio3");
-      // audio4 = Shader.PropertyToID("Audio4");
-      // audio5 = Shader.PropertyToID("Audio5");
-      // audio6 = Shader.PropertyToID("Audio6");
-      // audio7 = Shader.PropertyToID("Audio7");
-      // audio8 = Shader.PropertyToID("Audio8");
-      radius = Shader.PropertyToID("Radius");
-      noisePositionAddition = Shader.PropertyToID("NoisePositionAddition");
-      noiseIntensity = Shader.PropertyToID("Intensity");
+      for (int v=0; v < modifiedSampleMesh.vertexCount; v++)
+      {
+        Vector3 targetPosition = sampleMesh.vertices[v] +
+          sampleMesh.normals[v] * audioProcessor.band[v] * audioEffectIntensity;
+        vertices[v] = targetPosition;
+      }
+
+      modifiedSampleMesh.SetVertices(vertices);
     }
   }
 }

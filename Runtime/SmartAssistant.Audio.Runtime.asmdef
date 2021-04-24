@@ -2,7 +2,8 @@
     "name": "SmartAssistant.AudioVisualizer.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:d04eb9c554ad44ceab303cecf0c0cf82"
+        "GUID:d04eb9c554ad44ceab303cecf0c0cf82",
+        "GUID:b23efe0d0bd83184681bd63517e3c327"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

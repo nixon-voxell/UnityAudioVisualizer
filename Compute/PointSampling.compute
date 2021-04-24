@@ -1,0 +1,60 @@
+#pragma kernel TransferData
+
+struct SamplePoint
+{
+  uint4 indices;
+  float4 weights;
+};
+
+uniform uint sampleCount;
+uniform float4x4 transform;
+uniform float4x4 oldTransform;
+uniform float framRate;
+
+StructuredBuffer<SamplePoint> cb_samplePoints;
+StructuredBuffer<float3> cb_position;
+StructuredBuffer<float3> cb_oldPosition;
+StructuredBuffer<float3> cb_normal;
+
+RWTexture2D<float4> tex_positionMap;
+RWTexture2D<float4> tex_velocityMap;
+RWTexture2D<float4> tex_normalMap;
+
+// Point sampling function
+inline float3 SampleBuffer(StructuredBuffer<float3> buffer, SamplePoint sp)
+{
+  return buffer[sp.indices.x] * sp.weights.x + 
+    buffer[sp.indices.y] * sp.weights.y + 
+    buffer[sp.indices.z] * sp.weights.z;
+}
+
+// Hash function from H. Schechter & R. Bridson, goo.gl/RXiKaH
+uint Hash(uint s)
+{
+  s ^= 2747636419u;
+  s *= 2654435769u;
+  s ^= s >> 16;
+  s *= 2654435769u;
+  s ^= s >> 16;
+  s *= 2654435769u;
+  return s;
+}
+
+[numthreads(8, 8, 1)]
+void TransferData(uint2 id : SV_DispatchThreadID)
+{
+  uint si = Hash(id.x + id.y * 65536) % sampleCount;
+  SamplePoint sp = cb_samplePoints[si];
+
+  float3 p1 = SampleBuffer(cb_position, sp);
+  float3 p0 = SampleBuffer(cb_oldPosition, sp);
+  float3 n1 = normalize(SampleBuffer(cb_normal, sp));
+
+  p0 = mul(oldTransform, float4(p0, 1)).xyz;
+  p1 = mul(transform, float4(p1, 1)).xyz;
+  n1 = mul(transform, float4(n1, 0)).xyz;
+
+  tex_positionMap[id] = float4(p1, 1);
+  tex_velocityMap[id] = float4((p1 - p0) * framRate, 0);
+  tex_normalMap[id] = float4(n1, 0);
+}
