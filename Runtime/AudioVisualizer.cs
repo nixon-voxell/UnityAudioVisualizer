@@ -40,6 +40,7 @@ namespace SmartAssistant.Audio
 
     void InitAudioVisualizer()
     {
+      print(sampleMesh.triangles.Length/3);
       audioProfile.bandSize = sampleMesh.vertexCount;
       audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
 
