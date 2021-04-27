@@ -19,7 +19,11 @@ All rights reserved.
 
 using UnityEngine;
 using UnityEngine.VFX;
+using Unity.Mathematics;
+using Unity.Jobs;
 using Unity.Collections;
+using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace SmartAssistant.Audio
 {
@@ -32,26 +36,36 @@ namespace SmartAssistant.Audio
     public VisualEffect audioVFX;
     public MeshFilter meshFilter;
     public Mesh sampleMesh;
-    public float audioEffectIntensity = 5.0f;
+    public int batchSize = 100;
 
     private Mesh modifiedSampleMesh;
-    private Vector3[] vertices;
-    private Vector3[] velocites;
+    private NativeArray<float3> originVertices;
+    private NativeArray<float3> normals;
+    public NativeArray<int> triangles;
+    private NativeArray<float3> vertices;
+    private int totalTris;
 
     void InitAudioVisualizer()
     {
-      print(sampleMesh.triangles.Length/3);
-      audioProfile.bandSize = sampleMesh.vertexCount;
-      audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
+      totalTris = (int)sampleMesh.GetIndexCount(0)/3;
+      audioProfile.bandSize = totalTris;
 
-      vertices = sampleMesh.vertices;
-      velocites = new Vector3[sampleMesh.vertexCount];
-      MathUtils.SetArray<Vector3>(ref velocites, Vector3.zero);
+      audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
 
       MeshUtils.CopyMesh(in sampleMesh, out modifiedSampleMesh);
       audioVFX.SetMesh(VFXPropertyId.mesh_sampleMesh, modifiedSampleMesh);
       modifiedSampleMesh.MarkDynamic();
       meshFilter.mesh = modifiedSampleMesh;
+
+      // transferring mesh data to native arrays to be processed parallely
+      Mesh.MeshDataArray sampleMeshData = Mesh.AcquireReadOnlyMeshData(sampleMesh);
+      originVertices = MeshUtils.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
+      originVertices.AsReadOnly();
+      normals = MeshUtils.NativeGetNormals(sampleMeshData[0], Allocator.Persistent);
+      normals.AsReadOnly();
+      triangles = MeshUtils.NativeGetIndices(sampleMeshData[0], Allocator.Persistent);
+      triangles.AsReadOnly();
+      sampleMeshData.Dispose();
     }
 
     void UpdateAudioVisualizer()
@@ -60,14 +74,55 @@ namespace SmartAssistant.Audio
       audioProcessor.RescaleSamples();
       audioProcessor.GenerateBands();
 
-      for (int v=0; v < modifiedSampleMesh.vertexCount; v++)
+      vertices = new NativeArray<float3>(modifiedSampleMesh.vertexCount, Allocator.TempJob);
+
+      AudioMeshVisualizer audioMeshVisualizer = new AudioMeshVisualizer
       {
-        Vector3 targetPosition = sampleMesh.vertices[v] +
-          sampleMesh.normals[v] * audioProcessor.band[v] * audioEffectIntensity;
-        vertices[v] = targetPosition;
-      }
+        originVertices = originVertices,
+        normals = normals,
+        triangles = triangles,
+        bands = audioProcessor.bands,
+        vertices = vertices
+      };
+
+      JobHandle jobHandle = audioMeshVisualizer.Schedule<AudioMeshVisualizer>(totalTris, batchSize);
+      jobHandle.Complete();
 
       modifiedSampleMesh.SetVertices(vertices);
+      vertices.Dispose();
     }
+
+    void OnDisable()
+    {
+      originVertices.Dispose();
+      normals.Dispose();
+      triangles.Dispose();
+      audioProcessor.Destroy();
+    }
+  }
+}
+
+[BurstCompile(CompileSynchronously=true)]
+public struct AudioMeshVisualizer : IJobParallelFor
+{
+  [ReadOnly] public NativeArray<float3> originVertices;
+  [ReadOnly] public NativeArray<float3> normals;
+  [ReadOnly] public NativeArray<int> triangles;
+  [ReadOnly] public NativeArray<float> bands;
+  [NativeDisableContainerSafetyRestriction]
+  [WriteOnly] public NativeArray<float3> vertices;
+
+  public void Execute(int index)
+  {
+    int t0 = triangles[index*3];
+    int t1 = triangles[index*3 + 1];
+    int t2 = triangles[index*3 + 2];
+
+    float3 normal = normals[t0];
+    float3 displacement = normal * bands[index];
+
+    vertices[t0] = originVertices[t0] + displacement;
+    vertices[t1] = originVertices[t1] + displacement;
+    vertices[t2] = originVertices[t2] + displacement;
   }
 }

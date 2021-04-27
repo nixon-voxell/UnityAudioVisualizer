@@ -34,7 +34,7 @@ namespace SmartAssistant.Audio.AudioDebug
 
     private int freqRange;
 
-    void Awake()
+    void Start()
     {
       audioProfile.bandSize = bandSize;
       audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
@@ -66,10 +66,10 @@ namespace SmartAssistant.Audio.AudioDebug
       {
         Gizmos.color = Color.cyan;
         Gizmos.color *= new Color(1, 1, 1, 0.5f);
-        for (int s=0; s < audioProcessor.band.Length; s++)
+        for (int s=0; s < audioProcessor.bands.Length; s++)
           Gizmos.DrawCube(
             transform.position + new Vector3(width*s + xOffset, 0, 0),
-            new Vector3(width, audioProcessor.band[s], width));
+            new Vector3(width, audioProcessor.bands[s], width));
       }
     }
   }

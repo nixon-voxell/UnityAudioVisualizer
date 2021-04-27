@@ -18,6 +18,7 @@ All rights reserved.
 */
 
 using UnityEngine;
+using Unity.Collections;
 
 namespace SmartAssistant.Audio
 {
@@ -41,7 +42,7 @@ namespace SmartAssistant.Audio
 
     private int bandAverage;
     public int[] bandDistribution;
-    public float[] band;
+    public NativeArray<float> bands;
 
     public void Init()
     {
@@ -62,7 +63,7 @@ namespace SmartAssistant.Audio
 
       bandAverage = freqSize/profile.bandSize;
 
-      band = new float[profile.bandSize];
+      bands = new NativeArray<float>(profile.bandSize, Allocator.Persistent);
       bandDistribution = new int[profile.bandSize];
       for (int b=0; b < profile.bandSize; b++)
         bandDistribution[b] = bandAverage + b*bandAverage;
@@ -96,16 +97,21 @@ namespace SmartAssistant.Audio
 
     public void GenerateBands()
     {
-      CreateBand(0, bandDistribution[0], ref band[0]);
+      CreateBand(0, bandDistribution[0], 0);
       for (int b=1; b < profile.bandSize; b++)
-        CreateBand(bandDistribution[b-1], bandDistribution[b], ref band[b]);
+        CreateBand(bandDistribution[b-1], bandDistribution[b], b);
     }
 
-    private void CreateBand(int start, int end, ref float totalFreq)
+    private void CreateBand(int start, int end, int index)
     {
-      totalFreq = 0.0f;
-      for (int f=start; f < end; f++)
-        totalFreq += freq[f]/bandAverage;
+      float totalFreq = 0.0f;
+      for (int f=start; f < end; f++) totalFreq += freq[f]/bandAverage;
+      bands[index] = totalFreq;
+    }
+
+    public void Destroy()
+    {
+      bands.Dispose();
     }
 
   }
