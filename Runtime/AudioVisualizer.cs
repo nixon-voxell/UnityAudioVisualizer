@@ -29,6 +29,7 @@ namespace SmartAssistant.Audio
 {
   public partial class AudioCore
   {
+    [Header("Audio Visualizer Settings")]
     public AudioSource audioSource;
     public AudioProfile audioProfile;
     public AudioProcessor audioProcessor;
@@ -45,14 +46,14 @@ namespace SmartAssistant.Audio
     private NativeArray<float3> vertices;
     private int totalTris;
 
-    void InitAudioVisualizer()
+    private void InitAudioVisualizer()
     {
       totalTris = (int)sampleMesh.GetIndexCount(0)/3;
       audioProfile.bandSize = totalTris;
 
       audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
 
-      MeshUtils.CopyMesh(in sampleMesh, out modifiedSampleMesh);
+      MeshUtils.DeepCopyMesh(ref sampleMesh, out modifiedSampleMesh);
       audioVFX.SetMesh(VFXPropertyId.mesh_sampleMesh, modifiedSampleMesh);
       modifiedSampleMesh.MarkDynamic();
       meshFilter.mesh = modifiedSampleMesh;
@@ -68,7 +69,7 @@ namespace SmartAssistant.Audio
       sampleMeshData.Dispose();
     }
 
-    void UpdateAudioVisualizer()
+    private void UpdateAudioVisualizer()
     {
       audioProcessor.SampleSpectrum();
       audioProcessor.RescaleSamples();
@@ -102,7 +103,10 @@ namespace SmartAssistant.Audio
   }
 }
 
-[BurstCompile(CompileSynchronously=true)]
+[BurstCompile(
+  CompileSynchronously=true,
+  FloatPrecision=FloatPrecision.Medium,
+  FloatMode=FloatMode.Fast)]
 public struct AudioMeshVisualizer : IJobParallelFor
 {
   [ReadOnly] public NativeArray<float3> originVertices;

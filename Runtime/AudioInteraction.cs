@@ -23,61 +23,48 @@ namespace SmartAssistant.Audio
 {
   public partial class AudioCore
   {
-    #region Agent Interaction
-    [Header("Agent Interaction")]
+    [Header("Audio Visualizer  Interaction")]
+    [Tooltip("Velocity of audio visualizer when there is no interaction")]
+    public Vector2 idleVelocity = new Vector2(0.01f, -0.01f);
+    [Tooltip("Minimum turbulence for VFX graph when there is no interaction or extra force")]
+    public float idleNoiseIntensity = 0.1f;
+    [Tooltip("Sensitivity of the audio visualizer on mouse drag")]
     public float rotationMultiplier = 500;
-    public Vector2 rotationVelocity;
-    [Range(0.8f, 0.99f)]
+    [Range(0.8f, 0.99f), Tooltip("A number that multiplies the velocity of the audio visualizer on each update")]
     public float velocityDamping = 0.9f;
+    [Tooltip("Multiplier of noise intensity before sending it to the VFX graph")]
     public float intensityCoefficient = 0.1f;
 
-    public float intervalTime = 0.01f;
-    private float timePassed;
-    #endregion
+    private Vector2 rotationVelocity;
 
-    #region Editor Stuffs
-    [HideInInspector]
-    public bool showAgentInteraction,
-    showRotation,
-    showMouse;
-    #endregion
-
-    void InitAgentInteraction()
+    private void InitAgentInteraction()
     {
       rotationVelocity = Vector2.zero;
-      timePassed = 0;
     }
 
-    void UpdateAgentInteraction()
+    private void UpdateAgentInteraction()
     {
-      timePassed += Time.deltaTime;
+      if (Input.GetMouseButton(0)) OnMouseDrag();
 
-      if (timePassed >= intervalTime)
+      if (Vector3.Dot(transform.up, Vector3.up) >= 0)
       {
-        timePassed = 0.0f;
-        #region Rotation
-        if (Input.GetMouseButton(0)) OnMouseDrag();
-
-        if (Vector3.Dot(transform.up, Vector3.up) >= 0)
-        {
-          transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
-        } else
-        {
-          transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
-        }
-        
-        transform.Rotate(Camera.main.transform.right, Vector3.Dot(rotationVelocity, Camera.main.transform.up), Space.World);
-        rotationVelocity *= velocityDamping;
-
-        if (rotationVelocity.magnitude <= EPSILON) rotationVelocity = Vector2.zero;
-
-        float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, 0, 1);
-        // audioVFX.SetFloat(noiseIntensity, intensity);
-        #endregion
+        transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
+      } else
+      {
+        transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
       }
+      
+      transform.Rotate(Camera.main.transform.right, Vector3.Dot(rotationVelocity, Camera.main.transform.up), Space.World);
+      rotationVelocity *= velocityDamping;
+      rotationVelocity += idleVelocity;
+
+      if (rotationVelocity.magnitude <= EPSILON) rotationVelocity = Vector2.zero;
+
+      float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, idleNoiseIntensity, 1);
+      audioVFX.SetFloat(VFXPropertyId.noiseIntensity, intensity);
     }
 
-    void OnMouseDrag()
+    private void OnMouseDrag()
     {
       float rotationX = Input.GetAxis("Mouse X")*rotationMultiplier*Mathf.Deg2Rad;
       float rotationY = Input.GetAxis("Mouse Y")*rotationMultiplier*Mathf.Deg2Rad;
