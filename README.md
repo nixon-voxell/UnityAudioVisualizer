@@ -1,6 +1,6 @@
 # Audio for Smart Assistant
 
-![Demo](./Pictures/Demo.png)
+![Demo](./Pictures/SmartAssistantAudioDemoHD.png)
 
 ## What does this package contains??
 
