@@ -18,7 +18,6 @@ All rights reserved.
 */
 
 using UnityEngine;
-using Unity.Collections;
 
 namespace SmartAssistant.Audio
 {
@@ -35,19 +34,14 @@ namespace SmartAssistant.Audio
     }
 
     public float[] samples;
-    public float[][] sampleBuffers;
 
-    public float[] freq;
     public int freqSize;
-
-    private int bandAverage;
+    public int bandAverage;
     public int[] bandDistribution;
-    public NativeArray<float> bands;
 
     public void Init()
     {
       samples = new float[profile.sampleSize];
-      sampleBuffers = new float[profile.sampleSize][];
 
       float freqInterval = AudioSettings.outputSampleRate/profile.sampleSize;
       float currFreq = 0.0f;
@@ -59,60 +53,16 @@ namespace SmartAssistant.Audio
         if (currFreq < profile.freqRange) freqSize ++;
         else break;
       }
-      freq = new float[freqSize];
 
       bandAverage = freqSize/profile.bandSize;
 
-      bands = new NativeArray<float>(profile.bandSize, Allocator.Persistent);
-      bandDistribution = new int[profile.bandSize];
-      for (int b=0; b < profile.bandSize; b++)
+      bandDistribution = new int[profile.bandSize+1];
+      bandDistribution[0] = 0;
+      for (int b=1; b < profile.bandSize+1; b++)
         bandDistribution[b] = bandAverage + b*bandAverage;
 
-      for (int s=0; s < profile.sampleSize; s++)
-        sampleBuffers[s] = new float[profile.bufferSize];
     }
 
     public void SampleSpectrum() => source.GetSpectrumData(samples, profile.channel, profile.window);
-
-    public void RescaleSamples()
-    {
-      for (int f=1; f < freqSize; f++)
-      {
-        samples[f] = Mathf.Pow(Mathf.Sqrt(samples[f]), profile.power) * profile.scale;
-
-        // populate buffers
-        for (int b=1; b < profile.bufferSize; b++)
-          sampleBuffers[f][b] = sampleBuffers[f][b-1];
-
-        // push in newest sample into buffer
-        sampleBuffers[f][profile.bufferSize-1] = samples[f];
-        float minBuffer = Mathf.Min(sampleBuffers[f]);
-        float maxBuffer = Mathf.Max(sampleBuffers[f]);
-
-        float average = (maxBuffer - minBuffer)/2;
-
-        freq[f-1] = Mathf.Lerp(average, samples[f], profile.sensitivity);
-      }
-    }
-
-    public void GenerateBands()
-    {
-      CreateBand(0, bandDistribution[0], 0);
-      for (int b=1; b < profile.bandSize; b++)
-        CreateBand(bandDistribution[b-1], bandDistribution[b], b);
-    }
-
-    private void CreateBand(int start, int end, int index)
-    {
-      float totalFreq = 0.0f;
-      for (int f=start; f < end; f++) totalFreq += freq[f]/bandAverage;
-      bands[index] = totalFreq;
-    }
-
-    public void Destroy()
-    {
-      bands.Dispose();
-    }
-
   }
 }

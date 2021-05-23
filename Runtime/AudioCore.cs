@@ -67,8 +67,11 @@ namespace SmartAssistant.Audio
     internal static class VFXPropertyId
     {
       public static readonly int mesh_sampleMesh = Shader.PropertyToID("SampleMesh");
-      public static readonly int idleNoiseSpeed = Shader.PropertyToID("IdleNoiseSpeed");
-      public static readonly int noiseIntensity = Shader.PropertyToID("NoiseIntensity");
+      public static readonly int float_forceMultiplier = Shader.PropertyToID("ForceMultiplier");
+      public static readonly int int_triangleCount = Shader.PropertyToID("TriangleCount");
+      public static readonly int float_idleNoiseSpeed = Shader.PropertyToID("IdleNoiseSpeed");
+      public static readonly int float_noiseIntensity = Shader.PropertyToID("NoiseIntensity");
+      public static readonly int float3_noiseScale = Shader.PropertyToID("NoiseScale");
     }
   }
 }

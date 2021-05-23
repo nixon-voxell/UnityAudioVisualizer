@@ -44,6 +44,8 @@ namespace SmartAssistant.Audio
     private NativeArray<float3> normals;
     public NativeArray<int> triangles;
     private NativeArray<float3> vertices;
+    private NativeArray<float> samples;
+    private NativeArray<int> bandDistribution;
     private int totalTris;
 
     private void InitAudioVisualizer()
@@ -55,6 +57,7 @@ namespace SmartAssistant.Audio
 
       MeshUtils.DeepCopyMesh(ref sampleMesh, out modifiedSampleMesh);
       audioVFX.SetMesh(VFXPropertyId.mesh_sampleMesh, modifiedSampleMesh);
+      audioVFX.SetInt(VFXPropertyId.int_triangleCount, totalTris);
       modifiedSampleMesh.MarkDynamic();
       meshFilter.mesh = modifiedSampleMesh;
 
@@ -66,23 +69,33 @@ namespace SmartAssistant.Audio
       normals.AsReadOnly();
       triangles = MeshUtils.NativeGetIndices(sampleMeshData[0], Allocator.Persistent);
       triangles.AsReadOnly();
+      vertices = MeshUtils.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
+
+      // audio processing attributes
+      samples = new NativeArray<float>(audioProfile.sampleSize, Allocator.Persistent);
+      bandDistribution = new NativeArray<int>(audioProfile.bandSize+1, Allocator.Persistent);
+      MathUtils.CopyToNativeArray<int>(ref audioProcessor.bandDistribution, ref bandDistribution);
+
       sampleMeshData.Dispose();
     }
 
     private void UpdateAudioVisualizer()
     {
       audioProcessor.SampleSpectrum();
-      audioProcessor.RescaleSamples();
-      audioProcessor.GenerateBands();
 
-      vertices = new NativeArray<float3>(modifiedSampleMesh.vertexCount, Allocator.TempJob);
+      // copy audio samples to native array samples
+      MathUtils.CopyToNativeArray<float>(ref audioProcessor.samples, ref samples);
 
       AudioMeshVisualizer audioMeshVisualizer = new AudioMeshVisualizer
       {
         originVertices = originVertices,
         normals = normals,
         triangles = triangles,
-        bands = audioProcessor.bands,
+        samples = samples,
+        bandDistribution = bandDistribution,
+        power = audioProfile.power,
+        scale = audioProfile.scale,
+        bandAverage = audioProcessor.bandAverage,
         vertices = vertices
       };
 
@@ -90,7 +103,6 @@ namespace SmartAssistant.Audio
       jobHandle.Complete();
 
       modifiedSampleMesh.SetVertices(vertices);
-      vertices.Dispose();
     }
 
     void OnDisable()
@@ -98,7 +110,9 @@ namespace SmartAssistant.Audio
       originVertices.Dispose();
       normals.Dispose();
       triangles.Dispose();
-      audioProcessor.Destroy();
+      vertices.Dispose();
+      samples.Dispose();
+      bandDistribution.Dispose();
     }
   }
 }
@@ -106,13 +120,23 @@ namespace SmartAssistant.Audio
 [BurstCompile(
   CompileSynchronously=true,
   FloatPrecision=FloatPrecision.Medium,
-  FloatMode=FloatMode.Fast)]
+  FloatMode=FloatMode.Fast
+)]
 public struct AudioMeshVisualizer : IJobParallelFor
 {
   [ReadOnly] public NativeArray<float3> originVertices;
   [ReadOnly] public NativeArray<float3> normals;
   [ReadOnly] public NativeArray<int> triangles;
-  [ReadOnly] public NativeArray<float> bands;
+
+  [ReadOnly] public NativeArray<float> samples;
+  [ReadOnly] public NativeArray<int> bandDistribution;
+  public float power;
+  public float scale;
+  public int bandAverage;
+  // public int maxBuffer;
+  // private NativeArray<float> buffer;
+
+  // [ReadOnly] public NativeArray<float> bands;
   [NativeDisableContainerSafetyRestriction]
   [WriteOnly] public NativeArray<float3> vertices;
 
@@ -123,10 +147,20 @@ public struct AudioMeshVisualizer : IJobParallelFor
     int t2 = triangles[index*3 + 2];
 
     float3 normal = normals[t0];
-    float3 displacement = normal * bands[index];
+
+    float band = CreateBand(bandDistribution[index], bandDistribution[index+1]);;
+    band = math.pow(math.sqrt(band), power) * scale;
+    float3 displacement = normal * band;
 
     vertices[t0] = originVertices[t0] + displacement;
     vertices[t1] = originVertices[t1] + displacement;
     vertices[t2] = originVertices[t2] + displacement;
+  }
+
+  private float CreateBand(int start, int end)
+  {
+    float totalFreq = 0.0f;
+    for (int b=start; b < end; b++) totalFreq += samples[b]/bandAverage;
+    return totalFreq;
   }
 }

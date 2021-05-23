@@ -28,4 +28,4 @@ This project is part of the [Smart Assistant](https://github.com/voxell-tech/Sma
 
 Smart Assistant as a whole is licensed under the GNU Public License, Version 3. Individual files may have a different, but compatible license.
 
-See [license file](./LICENSE.md) for details.
+See [license file](./LICENSE) for details.

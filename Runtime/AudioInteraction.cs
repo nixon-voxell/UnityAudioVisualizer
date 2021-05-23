@@ -25,7 +25,7 @@ namespace SmartAssistant.Audio
   {
     [Header("Audio Visualizer  Interaction")]
     [Tooltip("Velocity of audio visualizer when there is no interaction")]
-    public Vector2 idleVelocity = new Vector2(0.01f, -0.01f);
+    public Vector2 idleVelocity = new Vector2(1.0f, -1.0f);
     [Tooltip("Minimum turbulence for VFX graph when there is no interaction or extra force")]
     public float idleNoiseIntensity = 0.1f;
     [Tooltip("Sensitivity of the audio visualizer on mouse drag")]
@@ -56,12 +56,12 @@ namespace SmartAssistant.Audio
       
       transform.Rotate(Camera.main.transform.right, Vector3.Dot(rotationVelocity, Camera.main.transform.up), Space.World);
       rotationVelocity *= velocityDamping;
-      rotationVelocity += idleVelocity;
+      rotationVelocity += idleVelocity*Time.deltaTime;
 
       if (rotationVelocity.magnitude <= EPSILON) rotationVelocity = Vector2.zero;
 
       float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, idleNoiseIntensity, 1);
-      audioVFX.SetFloat(VFXPropertyId.noiseIntensity, intensity);
+      audioVFX.SetFloat(VFXPropertyId.float_noiseIntensity, intensity);
     }
 
     private void OnMouseDrag()
