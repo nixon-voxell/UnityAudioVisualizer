@@ -86,3 +86,6 @@ crashlytics-build.properties
 
 # API keys
 *.apikey
+
+# License meta files
+LICENSE.meta
