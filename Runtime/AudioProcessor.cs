@@ -34,7 +34,6 @@ namespace SmartAssistant.Audio
     }
 
     public float[] samples;
-
     public int freqSize;
     public int bandAverage;
     public int[] bandDistribution;
@@ -60,7 +59,6 @@ namespace SmartAssistant.Audio
       bandDistribution[0] = 0;
       for (int b=1; b < profile.bandSize+1; b++)
         bandDistribution[b] = bandAverage + b*bandAverage;
-
     }
 
     public void SampleSpectrum() => source.GetSpectrumData(samples, profile.channel, profile.window);

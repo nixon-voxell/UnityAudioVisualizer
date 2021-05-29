@@ -11,9 +11,9 @@
   "license": "GPL v3.0",
   "unity": "2020.2",
   "unityRelease": "0f1",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "dependencies": {
     "com.unity.visualeffectgraph": "10.3.2",
-    "smartassistant.voxell.core": "0.1.0"
+    "smartassistant.voxell.core": "1.0.0"
   }
 }

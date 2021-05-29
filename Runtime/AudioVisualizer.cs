@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-The Original Code is Copyright (C) 2020 Voxell Technologies.
+The Original Code is Copyright (C) 2020 Voxell Technologies and Contributors.
 All rights reserved.
 */
 
@@ -24,6 +24,7 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
+using SmartAssistant.Core.Inspector;
 
 namespace SmartAssistant.Audio
 {
@@ -38,15 +39,15 @@ namespace SmartAssistant.Audio
     public MeshFilter meshFilter;
     public Mesh sampleMesh;
     public int batchSize = 100;
+    [InspectOnly] public int totalTris;
 
     private Mesh modifiedSampleMesh;
     private NativeArray<float3> originVertices;
     private NativeArray<float3> normals;
-    public NativeArray<int> triangles;
+    private NativeArray<int> triangles;
     private NativeArray<float3> vertices;
     private NativeArray<float> samples;
     private NativeArray<int> bandDistribution;
-    private int totalTris;
 
     private void InitAudioVisualizer()
     {
@@ -55,7 +56,7 @@ namespace SmartAssistant.Audio
 
       audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
 
-      MeshUtils.DeepCopyMesh(ref sampleMesh, out modifiedSampleMesh);
+      MeshUtil.DeepCopyMesh(ref sampleMesh, out modifiedSampleMesh);
       audioVFX.SetMesh(VFXPropertyId.mesh_sampleMesh, modifiedSampleMesh);
       audioVFX.SetInt(VFXPropertyId.int_triangleCount, totalTris);
       modifiedSampleMesh.MarkDynamic();
@@ -63,18 +64,18 @@ namespace SmartAssistant.Audio
 
       // transferring mesh data to native arrays to be processed parallely
       Mesh.MeshDataArray sampleMeshData = Mesh.AcquireReadOnlyMeshData(sampleMesh);
-      originVertices = MeshUtils.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
+      originVertices = MeshUtil.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
       originVertices.AsReadOnly();
-      normals = MeshUtils.NativeGetNormals(sampleMeshData[0], Allocator.Persistent);
+      normals = MeshUtil.NativeGetNormals(sampleMeshData[0], Allocator.Persistent);
       normals.AsReadOnly();
-      triangles = MeshUtils.NativeGetIndices(sampleMeshData[0], Allocator.Persistent);
+      triangles = MeshUtil.NativeGetIndices(sampleMeshData[0], Allocator.Persistent);
       triangles.AsReadOnly();
-      vertices = MeshUtils.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
+      vertices = MeshUtil.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
 
       // audio processing attributes
       samples = new NativeArray<float>(audioProfile.sampleSize, Allocator.Persistent);
       bandDistribution = new NativeArray<int>(audioProfile.bandSize+1, Allocator.Persistent);
-      MathUtils.CopyToNativeArray<int>(ref audioProcessor.bandDistribution, ref bandDistribution);
+      MathUtil.CopyToNativeArray<int>(ref audioProcessor.bandDistribution, ref bandDistribution);
 
       sampleMeshData.Dispose();
     }
@@ -84,7 +85,7 @@ namespace SmartAssistant.Audio
       audioProcessor.SampleSpectrum();
 
       // copy audio samples to native array samples
-      MathUtils.CopyToNativeArray<float>(ref audioProcessor.samples, ref samples);
+      MathUtil.CopyToNativeArray<float>(ref audioProcessor.samples, ref samples);
 
       AudioMeshVisualizer audioMeshVisualizer = new AudioMeshVisualizer
       {

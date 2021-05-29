@@ -28,11 +28,6 @@ namespace SmartAssistant.Audio
   {
     private const float EPSILON = 0.001f;
 
-    #region Editor Stuff
-    [HideInInspector]
-    public bool drawDefaultInspect;
-    #endregion
-
     void Start()
     {
       InitAgentInteraction();
