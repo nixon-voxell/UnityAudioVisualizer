@@ -37,22 +37,16 @@ namespace SmartAssistant.Audio
 
     private Vector2 rotationVelocity;
 
-    private void InitAgentInteraction()
-    {
-      rotationVelocity = Vector2.zero;
-    }
+    private void InitAgentInteraction() => rotationVelocity = Vector2.zero;
 
     private void UpdateAgentInteraction()
     {
       if (Input.GetMouseButton(0)) OnMouseDrag();
 
       if (Vector3.Dot(transform.up, Vector3.up) >= 0)
-      {
         transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
-      } else
-      {
+      else
         transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
-      }
       
       transform.Rotate(Camera.main.transform.right, Vector3.Dot(rotationVelocity, Camera.main.transform.up), Space.World);
       rotationVelocity *= velocityDamping;
@@ -64,6 +58,9 @@ namespace SmartAssistant.Audio
       audioVFX.SetFloat(VFXPropertyId.float_noiseIntensity, intensity);
     }
 
+    /// <summary>
+    /// Calcualte mouse drag force and apply rotational force accordingly
+    /// </summary>
     private void OnMouseDrag()
     {
       float rotationX = Input.GetAxis("Mouse X")*rotationMultiplier*Mathf.Deg2Rad;

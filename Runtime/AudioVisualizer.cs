@@ -103,7 +103,7 @@ namespace SmartAssistant.Audio
       JobHandle jobHandle = audioMeshVisualizer.Schedule<AudioMeshVisualizer>(totalTris, batchSize);
       jobHandle.Complete();
 
-      modifiedSampleMesh.SetVertices(vertices);
+      modifiedSampleMesh.SetVertices<float3>(vertices);
     }
 
     void OnDisable()
@@ -147,9 +147,11 @@ public struct AudioMeshVisualizer : IJobParallelFor
     int t1 = triangles[index*3 + 1];
     int t2 = triangles[index*3 + 2];
 
+    // TODO: use force based method to smooth things out (no smoothing algorithm needed for audio anymore!)
+    // moves triangles towards direction of the triangle normal based on the amplitude of the particular frequency
     float3 normal = normals[t0];
 
-    float band = CreateBand(bandDistribution[index], bandDistribution[index+1]);;
+    float band = CreateBand(bandDistribution[index], bandDistribution[index+1]);
     band = math.pow(math.sqrt(band), power) * scale;
     float3 displacement = normal * band;
 
