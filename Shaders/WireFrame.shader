@@ -149,22 +149,27 @@ shader "Custom/WireFrame"
 
       ZWrite On
       ZTest LEqual
+      ColorMask 0
       Cull[_Cull]
 
       HLSLPROGRAM
-      // Required to compile gles 2.0 with standard srp library
-      #pragma prefer_hlslcc gles
-      #pragma exclude_renderers d3d11_9x
+      #pragma only_renderers gles gles3 glcore d3d11
       #pragma target 2.0
-
-      // -------------------------------------
-      // Material Keywords
-      #pragma shader_feature _ALPHATEST_ON
 
       //--------------------------------------
       // GPU Instancing
       #pragma multi_compile_instancing
-      #pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+      // -------------------------------------
+      // Material Keywords
+      #pragma shader_feature_local_fragment _ALPHATEST_ON
+      #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+      // -------------------------------------
+      // Universal Pipeline keywords
+
+      // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+      #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
       #pragma vertex ShadowPassVertex
       #pragma fragment ShadowPassFragment

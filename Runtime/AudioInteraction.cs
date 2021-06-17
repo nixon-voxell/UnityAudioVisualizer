@@ -26,12 +26,17 @@ namespace SmartAssistant.Audio
     [Header("Audio Visualizer  Interaction")]
     [Tooltip("Velocity of audio visualizer when there is no interaction")]
     public Vector2 idleVelocity = new Vector2(1.0f, -1.0f);
+
     [Tooltip("Minimum turbulence for VFX graph when there is no interaction or extra force")]
     public float idleNoiseIntensity = 0.1f;
+    public float maxNoiseIntensity = 0.3f;
+
     [Tooltip("Sensitivity of the audio visualizer on mouse drag")]
     public float rotationMultiplier = 500;
+
     [Range(0.8f, 0.99f), Tooltip("A number that multiplies the velocity of the audio visualizer on each update")]
     public float velocityDamping = 0.9f;
+
     [Tooltip("Multiplier of noise intensity before sending it to the VFX graph")]
     public float intensityCoefficient = 0.1f;
 
@@ -54,7 +59,7 @@ namespace SmartAssistant.Audio
 
       if (rotationVelocity.magnitude <= EPSILON) rotationVelocity = Vector2.zero;
 
-      float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, idleNoiseIntensity, 1);
+      float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, idleNoiseIntensity, maxNoiseIntensity);
       audioVFX.SetFloat(VFXPropertyId.float_noiseIntensity, intensity);
     }
 
