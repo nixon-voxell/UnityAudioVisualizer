@@ -211,7 +211,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
 
   float minDistanceToEdge = min(input.dist.x, min(input.dist.y, input.dist.z)) * input.dist.w;
   col = lerp(_WireColor, col, step(0.5, minDistanceToEdge));
-  col.a = _WireColor.a * step(0.9, minDistanceToEdge);
+  // col.a *= _WireColor.a * step(0.9, minDistanceToEdge);
 
   return col;
 }

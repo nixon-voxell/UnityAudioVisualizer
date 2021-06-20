@@ -259,7 +259,7 @@ MonoBehaviour:
   m_ImportDependencies: []
   m_GraphVersion: 6
   m_ResourceVersion: 1
-  m_saved: 0
+  m_saved: 1
   m_SubgraphDependencies: []
   m_CategoryPath: 
 --- !u!114 &114380859405582094
@@ -319,7 +319,7 @@ MonoBehaviour:
   - {fileID: 114780028408030698}
   - {fileID: 8926484042661614847}
   dataType: 0
-  capacity: 30000
+  capacity: 60000
   stripCapacity: 16
   particlePerStripCount: 16
   m_Space: 0
@@ -414,7 +414,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 32768
+      m_SerializableObject: 65536
     m_Space: 2147483647
   m_Property:
     name: Rate
