@@ -13,7 +13,7 @@
   "unityRelease": "0f1",
   "version": "1.1.1",
   "dependencies": {
-    "com.unity.visualeffectgraph": "10.3.2",
-    "voxell.core": "1.0.0"
+    "voxell.util": "1.0.0",
+    "com.unity.visualeffectgraph": "10.3.2"
   }
 }

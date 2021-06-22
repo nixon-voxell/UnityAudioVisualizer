@@ -24,9 +24,9 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
-using SmartAssistant.Core.Inspector;
+using Voxell.Inspector;
 
-namespace SmartAssistant.Audio
+namespace Voxell.Audio
 {
   public partial class AudioCore
   {

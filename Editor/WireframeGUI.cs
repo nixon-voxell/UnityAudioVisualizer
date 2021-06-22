@@ -20,7 +20,7 @@ All rights reserved.
 using UnityEditor;
 // TODO: create custom shader gui for wire frame, add in wireframe thickness and wireframe color
 
-namespace SmartAssistant.Audio.Editor
+namespace Voxell.Audio.Editor
 {
   public class WireframeGUI: ShaderGUI
   {

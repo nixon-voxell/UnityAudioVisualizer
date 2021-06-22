@@ -20,7 +20,7 @@ All rights reserved.
 using UnityEngine;
 using UnityEngine.VFX;
 
-namespace SmartAssistant.Audio
+namespace Voxell.Audio
 {
   [RequireComponent(typeof(VisualEffect))]
   [RequireComponent(typeof(AudioSource))]

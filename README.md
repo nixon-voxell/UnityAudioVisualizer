@@ -1,10 +1,10 @@
-# Audio for Smart Assistant
+# Unity Audio Visualizer
 
 ![Demo](./Pictures/SmartAssistantAudioDemoHD.png)
 
 ## What does this package contains??
 
-This is a package than handles all sorts of audio processing that is needed for the [Smart Assistant](https://github.com/voxell-tech/SmartAssistant) project. Anyone can use this package in any way they want as long as they credit the author(s) and also respect the [license](LICENSE) agreement.
+This is a package than handles all sorts of audio processing that is needed for the [Smart Assistant](https://github.com/voxell-tech/Voxell) project. Anyone can use this package in any way they want as long as they credit the author(s) and also respect the [license](LICENSE) agreement.
 
 
 ### Audio Visualizer
@@ -22,9 +22,7 @@ This package only supports the Universal Render Pipeline. Unity's Job System and
 
 ## Support the project!
 
-This project is part of the [Smart Assistant](https://github.com/voxell-tech/SmartAssistant) project. If you feel like supporting the development of this project, simply click the "Sponsor" button on this page or support us on [Patreon](https://www.patreon.com/smartassistant)! Thank you!
-
-<a href="https://www.patreon.com/smartassistant" target="_blank">
+<a href="https://www.patreon.com/voxelltech" target="_blank">
   <img src="https://teaprincesschronicles.files.wordpress.com/2020/03/support-me-on-patreon.png" alt="patreon" width="200px" height="55px"/>
 </a>
 

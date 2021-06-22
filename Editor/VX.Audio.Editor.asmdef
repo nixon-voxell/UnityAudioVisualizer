@@ -1,9 +1,7 @@
 {
-    "name": "SmartAssistant.Audio.Editor",
+    "name": "Voxell.Audio.Editor",
     "rootNamespace": "",
-    "references": [
-        "GUID:f6de75c8c8333464eb7d3caa037de423"
-    ],
+    "references": [],
     "includePlatforms": [
         "Editor"
     ],

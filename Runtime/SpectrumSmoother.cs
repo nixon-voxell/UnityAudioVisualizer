@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace SmartAssistant.Audio
+namespace Voxell.Audio
 {
   public class SpectrumSmoother
   {
