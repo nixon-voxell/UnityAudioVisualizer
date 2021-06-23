@@ -25,6 +25,7 @@ using Unity.Collections;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Voxell.Inspector;
+using Voxell.Mathx;
 
 namespace Voxell.Audio
 {
@@ -38,45 +39,55 @@ namespace Voxell.Audio
     public VisualEffect audioVFX;
     public MeshFilter meshFilter;
     public Mesh sampleMesh;
+    [Tooltip("Damping value to multiply the velocity of each triangles each frame.")]
+    public float velocityMultiplier = 2.5f;
     public int batchSize = 100;
-    [InspectOnly] public int totalTris;
+    [InspectOnly] public int totalTriangles;
 
     private Mesh modifiedSampleMesh;
-    private NativeArray<float3> originVertices;
     private NativeArray<float3> normals;
     private NativeArray<int> triangles;
-    private NativeArray<float3> vertices;
     private NativeArray<float> samples;
     private NativeArray<int> bandDistribution;
+    private NativeArray<float3> vertices;
+    private NativeArray<float> prevBands;
+    private NativeArray<float> bandVelocities;
 
     private void InitAudioVisualizer()
     {
-      totalTris = (int)sampleMesh.GetIndexCount(0)/3;
-      audioProfile.bandSize = totalTris;
+      totalTriangles = (int)sampleMesh.GetIndexCount(0)/3;
+      audioProfile.bandSize = totalTriangles;
 
       audioProcessor = new AudioProcessor(ref audioSource, ref audioProfile);
 
       MeshUtil.DeepCopyMesh(ref sampleMesh, out modifiedSampleMesh);
       audioVFX.SetMesh(VFXPropertyId.mesh_sampleMesh, modifiedSampleMesh);
-      audioVFX.SetInt(VFXPropertyId.int_triangleCount, totalTris);
+      audioVFX.SetInt(VFXPropertyId.int_triangleCount, totalTriangles);
       modifiedSampleMesh.MarkDynamic();
       meshFilter.mesh = modifiedSampleMesh;
 
       // transferring mesh data to native arrays to be processed parallely
       Mesh.MeshDataArray sampleMeshData = Mesh.AcquireReadOnlyMeshData(sampleMesh);
-      originVertices = MeshUtil.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
-      originVertices.AsReadOnly();
       normals = MeshUtil.NativeGetNormals(sampleMeshData[0], Allocator.Persistent);
       normals.AsReadOnly();
+
       triangles = MeshUtil.NativeGetIndices(sampleMeshData[0], Allocator.Persistent);
       triangles.AsReadOnly();
+
       vertices = MeshUtil.NativeGetVertices(sampleMeshData[0], Allocator.Persistent);
 
       // audio processing attributes
       samples = new NativeArray<float>(audioProfile.sampleSize, Allocator.Persistent);
       bandDistribution = new NativeArray<int>(audioProfile.bandSize+1, Allocator.Persistent);
-      MathUtil.CopyToNativeArray<int>(ref audioProcessor.bandDistribution, ref bandDistribution);
 
+      prevBands = new NativeArray<float>(totalTriangles, Allocator.Persistent);
+      MathUtil.SetNativeArray<float>(ref prevBands, 0);
+
+      bandVelocities = new NativeArray<float>(totalTriangles, Allocator.Persistent);
+      MathUtil.SetNativeArray<float>(ref bandVelocities, 0);
+
+      MathUtil.CopyToNativeArray<int>(ref audioProcessor.bandDistribution, ref bandDistribution);
+      bandDistribution.AsReadOnly();
       sampleMeshData.Dispose();
     }
 
@@ -89,7 +100,6 @@ namespace Voxell.Audio
 
       AudioMeshVisualizer audioMeshVisualizer = new AudioMeshVisualizer
       {
-        originVertices = originVertices,
         normals = normals,
         triangles = triangles,
         samples = samples,
@@ -97,10 +107,14 @@ namespace Voxell.Audio
         power = audioProfile.power,
         scale = audioProfile.scale,
         bandAverage = audioProcessor.bandAverage,
-        vertices = vertices
+        vertices = vertices,
+        prevBands = prevBands,
+        bandVelocities = bandVelocities,
+        velocityMultiplier = velocityMultiplier,
+        deltaTime = Time.deltaTime
       };
 
-      JobHandle jobHandle = audioMeshVisualizer.Schedule<AudioMeshVisualizer>(totalTris, batchSize);
+      JobHandle jobHandle = audioMeshVisualizer.Schedule<AudioMeshVisualizer>(totalTriangles, batchSize);
       jobHandle.Complete();
 
       modifiedSampleMesh.SetVertices<float3>(vertices);
@@ -108,12 +122,13 @@ namespace Voxell.Audio
 
     void OnDisable()
     {
-      originVertices.Dispose();
       normals.Dispose();
       triangles.Dispose();
-      vertices.Dispose();
       samples.Dispose();
       bandDistribution.Dispose();
+      vertices.Dispose();
+      prevBands.Dispose();
+      bandVelocities.Dispose();
     }
   }
 }
@@ -125,7 +140,6 @@ namespace Voxell.Audio
 )]
 public struct AudioMeshVisualizer : IJobParallelFor
 {
-  [ReadOnly] public NativeArray<float3> originVertices;
   [ReadOnly] public NativeArray<float3> normals;
   [ReadOnly] public NativeArray<int> triangles;
 
@@ -134,12 +148,14 @@ public struct AudioMeshVisualizer : IJobParallelFor
   public float power;
   public float scale;
   public int bandAverage;
-  // public int maxBuffer;
-  // private NativeArray<float> buffer;
 
-  // [ReadOnly] public NativeArray<float> bands;
   [NativeDisableContainerSafetyRestriction]
   [WriteOnly] public NativeArray<float3> vertices;
+
+  public NativeArray<float> prevBands;
+  public NativeArray<float> bandVelocities;
+  public float velocityMultiplier;
+  public float deltaTime;
 
   public void Execute(int index)
   {
@@ -147,17 +163,21 @@ public struct AudioMeshVisualizer : IJobParallelFor
     int t1 = triangles[index*3 + 1];
     int t2 = triangles[index*3 + 2];
 
-    // TODO: use force based method to smooth things out (no smoothing algorithm needed for audio anymore!)
-    // moves triangles towards direction of the triangle normal based on the amplitude of the particular frequency
     float3 normal = normals[t0];
 
     float band = CreateBand(bandDistribution[index], bandDistribution[index+1]);
     band = math.pow(math.sqrt(band), power) * scale;
-    float3 displacement = normal * band;
 
-    vertices[t0] = originVertices[t0] + displacement;
-    vertices[t1] = originVertices[t1] + displacement;
-    vertices[t2] = originVertices[t2] + displacement;
+    bandVelocities[index] += band - prevBands[index];
+    float magnitude = bandVelocities[index] * deltaTime;
+    float3 displacement = normal * magnitude;
+
+    vertices[t0] += displacement;
+    vertices[t1] += displacement;
+    vertices[t2] += displacement;
+
+    bandVelocities[index] *= velocityMultiplier;
+    prevBands[index] += magnitude;
   }
 
   private float CreateBand(int start, int end)
