@@ -24,7 +24,7 @@ namespace Voxell.Audio
 {
   [RequireComponent(typeof(VisualEffect))]
   [RequireComponent(typeof(AudioSource))]
-  public partial class AudioCore : MonoBehaviour
+  public sealed partial class AudioCore : MonoBehaviour
   {
     private const float EPSILON = 0.001f;
 

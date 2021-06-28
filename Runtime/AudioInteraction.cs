@@ -40,26 +40,26 @@ namespace Voxell.Audio
     [Tooltip("Multiplier of noise intensity before sending it to the VFX graph")]
     public float intensityCoefficient = 0.1f;
 
-    private Vector2 rotationVelocity;
+    private Vector2 _rotationVelocity;
 
-    private void InitAgentInteraction() => rotationVelocity = Vector2.zero;
+    private void InitAgentInteraction() => _rotationVelocity = Vector2.zero;
 
     private void UpdateAgentInteraction()
     {
       if (Input.GetMouseButton(0)) OnMouseDrag();
 
       if (Vector3.Dot(transform.up, Vector3.up) >= 0)
-        transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
+        transform.Rotate(Camera.main.transform.up, -Vector3.Dot(_rotationVelocity, Camera.main.transform.right), Space.World);
       else
-        transform.Rotate(Camera.main.transform.up, -Vector3.Dot(rotationVelocity, Camera.main.transform.right), Space.World);
+        transform.Rotate(Camera.main.transform.up, -Vector3.Dot(_rotationVelocity, Camera.main.transform.right), Space.World);
       
-      transform.Rotate(Camera.main.transform.right, Vector3.Dot(rotationVelocity, Camera.main.transform.up), Space.World);
-      rotationVelocity *= velocityDamping;
-      rotationVelocity += idleVelocity*Time.deltaTime;
+      transform.Rotate(Camera.main.transform.right, Vector3.Dot(_rotationVelocity, Camera.main.transform.up), Space.World);
+      _rotationVelocity *= velocityDamping;
+      _rotationVelocity += idleVelocity*Time.deltaTime;
 
-      if (rotationVelocity.magnitude <= EPSILON) rotationVelocity = Vector2.zero;
+      if (_rotationVelocity.magnitude <= EPSILON) _rotationVelocity = Vector2.zero;
 
-      float intensity = Mathf.Clamp(rotationVelocity.magnitude * intensityCoefficient, idleNoiseIntensity, maxNoiseIntensity);
+      float intensity = Mathf.Clamp(_rotationVelocity.magnitude * intensityCoefficient, idleNoiseIntensity, maxNoiseIntensity);
       audioVFX.SetFloat(VFXPropertyId.float_noiseIntensity, intensity);
     }
 
@@ -71,7 +71,7 @@ namespace Voxell.Audio
       float rotationX = Input.GetAxis("Mouse X")*rotationMultiplier*Mathf.Deg2Rad;
       float rotationY = Input.GetAxis("Mouse Y")*rotationMultiplier*Mathf.Deg2Rad;
 
-      rotationVelocity = new Vector2(rotationX, rotationY);
+      _rotationVelocity = new Vector2(rotationX, rotationY);
     }
   }
 }

@@ -40,7 +40,8 @@ namespace Voxell.Audio
     public MeshFilter meshFilter;
     public Mesh sampleMesh;
     [Tooltip("Damping value to multiply the velocity of each triangles each frame.")]
-    public float velocityMultiplier = 2.5f;
+    [Range(0, 1)]
+    public float velocityMultiplier = 0.95f;
     public int batchSize = 100;
     [InspectOnly] public int totalTriangles;
 
