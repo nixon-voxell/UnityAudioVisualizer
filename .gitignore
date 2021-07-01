@@ -103,6 +103,9 @@ AudioClips/
 *.wav
 *.audio
 
+# license
+LICENSE.meta
+
 # large libraries
 native/
 tensorflow.dll
