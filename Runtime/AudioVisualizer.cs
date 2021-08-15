@@ -80,15 +80,15 @@ namespace Voxell.Audio
       // audio processing attributes
       samples = new NativeArray<float>(audioProfile.sampleSize, Allocator.Persistent);
       bandDistribution = new NativeArray<int>(audioProfile.bandSize+1, Allocator.Persistent);
+      bandDistribution.CopyFrom(audioProcessor.bandDistribution);
+      bandDistribution.AsReadOnly();
 
       prevBands = new NativeArray<float>(totalTriangles, Allocator.Persistent);
-      MathUtil.SetNativeArray<float>(ref prevBands, 0);
+      prevBands.CopyFrom(prevBands);
 
       bandVelocities = new NativeArray<float>(totalTriangles, Allocator.Persistent);
-      MathUtil.SetNativeArray<float>(ref bandVelocities, 0);
+      bandVelocities.CopyFrom(bandVelocities);
 
-      MathUtil.CopyToNativeArray<int>(ref audioProcessor.bandDistribution, ref bandDistribution);
-      bandDistribution.AsReadOnly();
       sampleMeshData.Dispose();
     }
 
@@ -97,7 +97,7 @@ namespace Voxell.Audio
       audioProcessor.SampleSpectrum();
 
       // copy audio samples to native array samples
-      MathUtil.CopyToNativeArray<float>(ref audioProcessor.samples, ref samples);
+      samples.CopyFrom(audioProcessor.samples);
 
       AudioMeshVisualizer audioMeshVisualizer = new AudioMeshVisualizer
       {

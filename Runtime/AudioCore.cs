@@ -34,11 +34,8 @@ namespace Voxell.Audio
       InitAudioVisualizer();
     }
 
-    void Update()
-    {
-      UpdateAgentInteraction();
-      UpdateAudioVisualizer();
-    }
+    void Update() => UpdateAgentInteraction();
+    void FixedUpdate() => UpdateAudioVisualizer();
 
     internal static class ShaderPropertyId
     {

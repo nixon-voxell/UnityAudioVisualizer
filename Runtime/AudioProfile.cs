@@ -29,9 +29,8 @@ namespace Voxell.Audio
     public int sampleSize;
     public float power;
     public float scale;
-    public float sensitivity;
     public int smoothingIterations;
-    [Range(5000, 20000)] public int freqRange;
+    [Range(5000, 20000)] public int frequencyRange;
     [HideInInspector] public int bandSize;
   }
 }

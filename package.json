@@ -11,7 +11,7 @@
   "license": "GPL v3.0",
   "unity": "2021.1",
   "unityRelease": "0f1",
-  "version": "1.1.1",
+  "version": "1.0.0",
   "dependencies": {
     "voxell.util": "1.1.0",
     "com.unity.visualeffectgraph": "10.3.2"
