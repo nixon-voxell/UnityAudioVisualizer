@@ -43,6 +43,8 @@ namespace Voxell.Audio
     [Range(0, 1)]
     public float velocityMultiplier = 0.95f;
     public int batchSize = 100;
+    [Tooltip("Randomization of triangle index, set to 0 if you don't want to randomize it.")]
+    public uint seed;
     [InspectOnly] public int totalTriangles;
 
     private Mesh modifiedSampleMesh;
@@ -90,6 +92,25 @@ namespace Voxell.Audio
       bandVelocities.CopyFrom(bandVelocities);
 
       sampleMeshData.Dispose();
+
+      if (seed != 0)
+      {
+        // if randomized is turned on
+        int[] seqArray = MathUtil.GenerateSeqArray(totalTriangles);
+        MathUtil.ShuffleArray<int>(ref seqArray, seed);
+
+        // triangle indices
+        NativeArray<int> trianglesCopy = new NativeArray<int>(triangles, Allocator.Temp);
+
+        for (int s=0; s < seqArray.Length; s++)
+        {
+          triangles[s*3] = trianglesCopy[seqArray[s]*3];
+          triangles[s*3 + 1] = trianglesCopy[seqArray[s]*3 + 1];
+          triangles[s*3 + 2] = trianglesCopy[seqArray[s]*3 + 2];
+        }
+
+        trianglesCopy.Dispose();
+      }
     }
 
     private void UpdateAudioVisualizer()
@@ -151,7 +172,7 @@ public struct AudioMeshVisualizer : IJobParallelFor
   public int bandAverage;
 
   [NativeDisableContainerSafetyRestriction]
-  [WriteOnly] public NativeArray<float3> vertices;
+  public NativeArray<float3> vertices;
 
   public NativeArray<float> prevBands;
   public NativeArray<float> bandVelocities;
