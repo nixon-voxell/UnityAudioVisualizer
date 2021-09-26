@@ -20,10 +20,10 @@ All rights reserved.
 using UnityEngine;
 using UnityEngine.VFX;
 using Unity.Mathematics;
-using Unity.Jobs;
 using Unity.Collections;
-using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Burst;
+using Unity.Jobs;
 using Voxell.Inspector;
 using Voxell.Mathx;
 
@@ -42,7 +42,7 @@ namespace Voxell.Audio
     [Tooltip("Damping value to multiply the velocity of each triangles each frame.")]
     [Range(0, 1)]
     public float velocityMultiplier = 0.95f;
-    public int batchSize = 100;
+    public int batchSize = 128;
     [Tooltip("Randomization of triangle index, set to 0 if you don't want to randomize it.")]
     public uint seed;
     [InspectOnly] public int totalTriangles;
@@ -144,13 +144,13 @@ namespace Voxell.Audio
 
     void OnDisable()
     {
-      normals.Dispose();
-      triangles.Dispose();
-      samples.Dispose();
-      bandDistribution.Dispose();
-      vertices.Dispose();
-      prevBands.Dispose();
-      bandVelocities.Dispose();
+      NativeUtil.DisposeArray(ref normals);
+      NativeUtil.DisposeArray(ref triangles);
+      NativeUtil.DisposeArray(ref samples);
+      NativeUtil.DisposeArray(ref bandDistribution);
+      NativeUtil.DisposeArray(ref vertices);
+      NativeUtil.DisposeArray(ref prevBands);
+      NativeUtil.DisposeArray(ref bandVelocities);
     }
   }
 }
