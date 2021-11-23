@@ -2,22 +2,30 @@
 
 ![Demo](./Pictures/SmartAssistantAudioDemoHD.png)
 
-## What does this package contains??
-
 This is a package than handles audio processing and visualization. Anyone can use this package in any way they want as long as they credit the author(s) and also respect the [license](LICENSE) agreement.
+
+- [Unity Audio Visualizer](#unity-audio-visualizer)
+    - [Audio Visualizer](#audio-visualizer)
+  - [Installation](#installation)
+  - [Support the project!](#support-the-project)
+  - [License](#license)
 
 
 ### Audio Visualizer
 
 The audio visualizer is made using custom VFX Graph and custom Shader (Wireframe Shader). It also utilizes Unity's Job System and Burst Compiler to manipulate each triangles of the mesh of the audio visualizer.
 
-## How to use?
+## Installation
 
-This package only supports the Universal Render Pipeline. Unity's Job System and Burst Compiler must also be installed in order for this package to function.
+This package only supports the Universal Render Pipeline.
+
+External dependencies:
+
+- VX Util ([UnityUtil](https://github.com/voxell-tech/UnityUtil))
 
 1. Setup a project with URP as it's SRP.
-2. Install Unity's Job System and Burst Compiler from the Package Manager.
-3. Clone this repository and the [Unity Util](https://github.com/voxell-tech/UnityUtil) repository into your project's `Packages` folder.
+2. Clone the [UnityUtil](https://github.com/voxell-tech/UnityUtil) repository into your `Packages` folder.
+3. Clone this repository into your `Packages` folder.
 4. And you are ready to go!
 
 ## Support the project!
@@ -32,6 +40,6 @@ This package only supports the Universal Render Pipeline. Unity's Job System and
 
 ## License
 
-This repository as a whole is licensed under the GNU Public License, Version 3. Individual files may have a different, but compatible license.
+This repository as a whole is licensed under the Apache License 2.0. Individual files may have a different, but compatible license.
 
 See [license file](./LICENSE) for details.
