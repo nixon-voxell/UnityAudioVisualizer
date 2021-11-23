@@ -156,9 +156,9 @@ namespace Voxell.Audio
 }
 
 [BurstCompile(
-  CompileSynchronously=true,
-  FloatPrecision=FloatPrecision.Medium,
-  FloatMode=FloatMode.Fast
+  CompileSynchronously = true,
+  FloatPrecision = FloatPrecision.Medium,
+  FloatMode = FloatMode.Fast
 )]
 public struct AudioMeshVisualizer : IJobParallelFor
 {

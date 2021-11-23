@@ -1,4 +1,4 @@
-# Unity Audio Visualizer Package
+# Unity Audio Visualizer
 
 ![Demo](./Pictures/SmartAssistantAudioDemoHD.png)
 
