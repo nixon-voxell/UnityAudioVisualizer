@@ -11,7 +11,14 @@
   "license": "Apache 2.0",
   "unity": "2021.1",
   "unityRelease": "0f1",
-  "version": "1.1.0",
+  "version": "1.2.0",
+  "samples": [
+    {
+      "displayName": "Audio Visualizer Sample",
+      "description": "Audio visualizer sample scene.",
+      "path": "Samples~"
+    }
+  ],
   "dependencies": {
     "com.unity.visualeffectgraph": "10.3.2",
     "com.unity.collections": "1.0.0-pre.5",
