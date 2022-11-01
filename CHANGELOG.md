@@ -1,3 +1,9 @@
+## [1.2.1]
+
+### Changes
+
+Add in VX.Audio (remove *.audio from `.gitignore`).
+
 ## [1.2.0]
 
 ### Changes
