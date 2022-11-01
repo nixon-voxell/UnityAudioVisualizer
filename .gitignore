@@ -101,7 +101,6 @@ crashlytics-build.properties
 AudioClips/
 *.mp3
 *.wav
-*.audio
 
 # license
 LICENSE.meta
