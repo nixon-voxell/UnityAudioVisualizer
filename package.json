@@ -16,7 +16,7 @@
     {
       "displayName": "Audio Visualizer Sample",
       "description": "Audio visualizer sample scene.",
-      "path": "Samples~"
+      "path": "Samples~/Audio Visualizer Sample"
     }
   ],
   "dependencies": {
